@@ -1,57 +1,78 @@
+// Included this so it is easier for me to print
+#include <iostream>
+// Included this because vector_add only works with C
 #include <stdio.h>
-#define NUM_BLOCKS 3
-// defines 3 blocks in a grid
-#define BLOCK_WIDTH 4
-// defines 4 threads per block
 
-__global__ void triple(float *d_out, float *d_in)
+// MAX THREADS PER BLOCK 64
+const int maxThreadsPerBlock = 64;
+
+__global__ void vector_add(const float *a, const float *b, float *c)
 {
-	int idx = threadIdx.x;
-	float f = d_in[idx];
-	d_out[idx] = 3 * f;
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    // for debugging
+    printf("Thread ID: %d \n", i);
+    c[i] = a[i] + b[i];
 }
-// threadIdx.x is the index of the current thread
-// threadIdx.x is the index of the current thread
-// prints the thread and block number!
 
 int main(int argc, char **argv)
 {
-	const int ARRAY_SIZE = 32;
-	const int ARRAY_BYTES = ARRAY_SIZE * sizeof(float);
+    int VECTOR_VECTOR_BYTES;
+    std::cout << "Enter the size of the vectors: ";
+    std::cin >> VECTOR_VECTOR_BYTES;
 
-	// generate the input array on the host
-	float h_in[ARRAY_SIZE];
-	for (int i = 0; i < ARRAY_SIZE; i++)
-	{
-		h_in[i] = float(i);
-	
-	}
-	float h_out[ARRAY_SIZE];
+    int VECTOR_BYTES = VECTOR_VECTOR_BYTES * sizeof(float);
 
-	// declare GPU memory pointers
-	float *d_in;
-	float *d_out;
+    // allocate memory on the host
+    float *h_a = (float *)malloc(VECTOR_BYTES);
+    float *h_b = (float *)malloc(VECTOR_BYTES);
+    float *h_c = (float *)malloc(VECTOR_BYTES);
 
-	// allocate GPU memory
-	cudaMalloc((void **)&d_in, ARRAY_BYTES);
-	cudaMalloc((void **)&d_out, ARRAY_BYTES);
+    std::cout << "Enter elements of the first vector:\n";
+    for (int i = 0; i < VECTOR_VECTOR_BYTES; i++)
+    {
+        std::cin >> h_a[i];
+    }
 
-	// transfer the array to the GPU
-	cudaMemcpy(d_in, h_in, ARRAY_BYTES, cudaMemcpyHostToDevice);
-	// launch the kernel
-	triple<<<1, ARRAY_SIZE>>>(d_out, d_in);
-	// copy back the result array to the CPU
-	cudaMemcpy(h_out, d_out, ARRAY_BYTES, cudaMemcpyDeviceToHost);
+    std::cout << "Enter elements of the second vector:\n";
+    for (int i = 0; i < VECTOR_VECTOR_BYTES; i++)
+    {
+        std::cin >> h_b[i];
+    }
 
-	// print out the resulting array
-	for (int i = 0; i < ARRAY_SIZE; i++)
-	{
-		printf("%f", h_out[i]);
-		printf(((i % 4) != 3) ? "\t" : "\n");
-	}
+    // allocate memory on the device
+    float *d_a;
+    cudaMalloc(&d_a, VECTOR_BYTES);
+    float *d_b;
+    cudaMalloc(&d_b, VECTOR_BYTES);
+    float *d_c;
+    cudaMalloc(&d_c, VECTOR_BYTES);
 
-	cudaFree(d_in);
-	cudaFree(d_out);
+    // copy data from host to device
+    cudaMemcpy(d_a, h_a, VECTOR_BYTES, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, h_b, VECTOR_BYTES, cudaMemcpyHostToDevice);
 
-	return 0;
+    // launch the kernel
+    vector_add<<<1, maxThreadsPerBlock>>>(d_a, d_b, d_c);
+
+    // copy data back from device to host
+    cudaMemcpy(h_c, d_c, VECTOR_BYTES, cudaMemcpyDeviceToHost);
+
+    // print the result
+    std::cout << "Result vector:\n";
+    for (int i = 0; i < VECTOR_VECTOR_BYTES; i++)
+    {
+        std::cout << h_c[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // free memory
+    cudaFree(d_a);
+    cudaFree(d_b);
+    cudaFree(d_c);
+
+    free(h_a);
+    free(h_b);
+    free(h_c);
+
+    return 0;
 }
