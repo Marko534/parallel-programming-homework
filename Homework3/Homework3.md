@@ -1,18 +1,18 @@
-# Homework3
+# Homework 3
 
-## First run the python script to generate a test file
+## First, run the Python script to generate a test file.
 
-The I ran my program for adding matricies together. I changed the number of threads and the number of blocks too.
+Then, I ran my program for adding matrices together. I changed the number of threads and the number of blocks too.
 
-My conclusion was that it really didn't effect the execution time that much since most of the programs time was spent on writing the data to the gpu and not the sum calculations. This means that the eficincy of the calculations and threading didn't have that big of an effect.
+My conclusion was that it really didn't affect the execution time that much since most of the program's time was spent on writing the data to the GPU and not on the sum calculations. This means that the efficiency of the calculations and threading didn't have that big of an effect.
 
-To do this I ran the following comand.
+To do this, I ran the following command:
 
 ```bash
 nvprof ./homework3
 ```
 
-I got the following output for 8 blocks each block with 1024 threads adding two matricies with size 8192 x 8192.
+I got the following output for 8 blocks, each block with 1024 threads adding two matrices with size 8192 x 8192:
 
 ```bash
 
