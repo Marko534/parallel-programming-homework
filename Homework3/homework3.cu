@@ -6,12 +6,6 @@ FILE *file;
 
 float *readMatrixFromFile(FILE *file, int rows, int cols)
 {
-    if (!file)
-    {
-        perror("Error opening file");
-        exit(EXIT_FAILURE);
-    }
-
     float *matrix = (float *)malloc(rows * cols * sizeof(float));
 
     for (int i = 0; i < cols; i++)
@@ -92,7 +86,7 @@ int main(int argc, char **argv)
     cudaMemcpy(d_b, h_b, MATRIX_BYTES, cudaMemcpyHostToDevice);
 
     // Launch the kernel
-    matrix_add<<<8, maxThreadsPerBlock>>>(d_a, d_b, d_c);
+    matrix_add<<<1, 1024>>>(d_a, d_b, d_c);
 
     // Copy data back from device to host
     cudaMemcpy(h_c, d_c, MATRIX_BYTES, cudaMemcpyDeviceToHost);

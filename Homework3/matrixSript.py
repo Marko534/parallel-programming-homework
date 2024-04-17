@@ -23,7 +23,7 @@ def generate_matrices_file(filename, size):
 
 # Define the file name and matrix size
 filename = 'matrices.txt'
-matrix_size = 8192
+matrix_size = 32
 
 # Generate and write matrices to file
 generate_matrices_file(filename, matrix_size)
