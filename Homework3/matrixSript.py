@@ -22,7 +22,7 @@ def generate_matrices_file(filename, size):
             f.write(' '.join(map(str, row)) + '\n')
 
 # Define the file name and matrix size
-filename = 'Homework3/matrices.txt'
+filename = 'matrices.txt'
 matrix_size = 8192
 
 # Generate and write matrices to file
