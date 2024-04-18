@@ -30,31 +30,27 @@ float *readVectorFromFile(FILE *file, int size)
     return vector;
 }
 
-__global__ void vector_add(const float *a, const float *b, float *c, int n)
+__global__ void adjacent_difference_kernel(const float *input, float *output, int n)
 {
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
-    // for debugging
-    // printf("Thread ID: %d \n", i);
-    c[i] = a[i] + b[i];
-}
+    // Define shared memory
+    __shared__ float shared_data[1024];
 
-__global__ void vector_add_shared(const float *a, const float *b, float *c, int n)
-{
-    __shared__ float shared_all[1024 * 2];
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    int tid = threadIdx.x;
 
-    // Calculate global thread index
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    // Load input into shared memory
+    if (idx < n)
+    {
+        shared_data[tid] = input[idx];
+    }
 
-    // Load data into shared memory
+    __syncthreads(); // Ensure all data is loaded into shared memory
 
-    shared_all[threadIdx.x] = a[idx];
-    shared_all[threadIdx.x] = b[idx];
-
-    // Synchronize threads to ensure all data is loaded
-    __syncthreads();
-
-    // Perform vector addition using shared memory
-    c[idx] = shared_all[threadIdx.x] + shared_all[threadIdx.x];
+    // Calculate adjacent difference
+    if (tid < blockDim.x - 1 && idx < n - 1)
+    {
+        output[idx] = shared_data[tid + 1] - shared_data[tid];
+    }
 }
 
 int main(int argc, char **argv)
@@ -81,42 +77,36 @@ int main(int argc, char **argv)
 
     // allocate memory on the host
     float *h_a = readVectorFromFile(file, VECTOR_SIZE);
-    float *h_b = readVectorFromFile(file, VECTOR_SIZE);
     float *h_c = (float *)malloc(VECTOR_BYTES);
 
     // allocate memory on the device
     float *d_a;
     cudaMalloc(&d_a, VECTOR_BYTES);
-    float *d_b;
-    cudaMalloc(&d_b, VECTOR_BYTES);
     float *d_c;
     cudaMalloc(&d_c, VECTOR_BYTES);
 
     // copy data from host to device
     cudaMemcpy(d_a, h_a, VECTOR_BYTES, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_b, h_b, VECTOR_BYTES, cudaMemcpyHostToDevice);
 
     // launch the kernel
-    vector_add<<<1, maxThreadsPerBlock>>>(d_a, d_b, d_c, VECTOR_SIZE);
+    adjacent_difference_kernel<<<1, maxThreadsPerBlock>>>(d_a, d_c, VECTOR_SIZE);
 
     // copy data back from device to host
     cudaMemcpy(h_c, d_c, VECTOR_BYTES, cudaMemcpyDeviceToHost);
 
-    // // print the result
-    // std::cout << "Result vector:\n";
-    // for (int i = 0; i < VECTOR_SIZE; i++)
-    // {
-    //     std::cout << h_c[i] << " ";
-    // }
-    // std::cout << std::endl;
+    // print the result
+    std::cout << "Result vector:\n";
+    for (int i = 0; i < VECTOR_SIZE; i++)
+    {
+        std::cout << h_c[i] << " ";
+    }
+    std::cout << std::endl;
 
     // free memory
     cudaFree(d_a);
-    cudaFree(d_b);
     cudaFree(d_c);
 
     free(h_a);
-    free(h_b);
     free(h_c);
 
     return 0;

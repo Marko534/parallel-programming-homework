@@ -47,14 +47,14 @@ __global__ void vector_add_shared(const float *a, const float *b, float *c, int 
 
     // Load data into shared memory
 
-    shared_all[threadIdx.x] = a[idx];
-    shared_all[threadIdx.x] = b[idx];
+    shared_all[2 * threadIdx.x] = a[idx];
+    shared_all[2 * threadIdx.x + 1] = b[idx];
 
     // Synchronize threads to ensure all data is loaded
     __syncthreads();
 
     // Perform vector addition using shared memory
-    c[idx] = shared_all[threadIdx.x] + shared_all[threadIdx.x];
+    c[idx] = shared_all[2 * threadIdx.x] + shared_all[2 * threadIdx.x + 1];
 }
 
 int main(int argc, char **argv)
