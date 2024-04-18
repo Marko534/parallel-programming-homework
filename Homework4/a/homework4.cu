@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     cudaMemcpy(d_b, h_b, VECTOR_BYTES, cudaMemcpyHostToDevice);
 
     // launch the kernel
-    vector_add<<<1, maxThreadsPerBlock>>>(d_a, d_b, d_c, VECTOR_SIZE);
+    vector_add_shared<<<1, maxThreadsPerBlock>>>(d_a, d_b, d_c, VECTOR_SIZE);
 
     // copy data back from device to host
     cudaMemcpy(h_c, d_c, VECTOR_BYTES, cudaMemcpyDeviceToHost);
