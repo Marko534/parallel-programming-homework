@@ -41,5 +41,6 @@ namespace info
                                                                                            : prop.computeMode == cudaComputeModeProhibited       ? "Prohibited"
                                                                                            : prop.computeMode == cudaComputeModeExclusiveProcess ? "Exclusive Process"
                                                                                                                                                  : "Unknown"));
+        printf("Number of memory banks: %d\n", prop.memoryBusWidth / 8); // Divide memory bus width by 8 to get number of memory banks
     }
 } // namespace info
