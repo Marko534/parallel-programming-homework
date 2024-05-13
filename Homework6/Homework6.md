@@ -146,7 +146,7 @@ To get thise results I used this bash comand.
 nvprof ./homework6
 ```
 
-The results for the transpose are simmilar as well as the impruvments with using more tiles.
+The results for the transpose are similar as well as the improvements with using more tiles.
 
 ## C
 
