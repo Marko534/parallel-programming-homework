@@ -315,7 +315,7 @@ endif
 # Target rules
 all: build
 
-build: homework5
+build: homework8
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -324,21 +324,21 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-homework5.o:homework5.cu
+homework8.o:homework8.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-homework5: homework5.o
+homework8: homework8.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./homework5
+	$(EXEC) ./homework8
 
 testrun: build
 
 clean:
-	rm -f homework5 homework5.o
-	rm -rf bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/homework5
+	rm -f homework8 homework8.o
+	rm -rf bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/homework8
 
 clobber: clean
